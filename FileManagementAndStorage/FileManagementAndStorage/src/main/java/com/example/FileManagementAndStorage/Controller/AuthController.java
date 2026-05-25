@@ -37,11 +37,11 @@ public class AuthController {
     }
 
 
-    @GetMapping("/api/folders/test")
-    public String testAccess() {
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("User: {}, Authorities: {}", auth.getName(), auth.getAuthorities());
-        return "OK";
+        UserDTO user = userService.getUserByUsername(auth.getName());
+        return ResponseEntity.ok(user);
     }
 
 }

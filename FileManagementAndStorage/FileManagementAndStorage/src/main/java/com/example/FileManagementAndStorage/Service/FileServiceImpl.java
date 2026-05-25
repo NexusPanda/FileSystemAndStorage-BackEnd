@@ -6,6 +6,7 @@ import com.example.FileManagementAndStorage.Model.Folder;
 import com.example.FileManagementAndStorage.Model.UserEntity;
 import com.example.FileManagementAndStorage.ModelDTO.FileDTO;
 import com.example.FileManagementAndStorage.Repository.FileRepository;
+import com.example.FileManagementAndStorage.Repository.FileShareRepository;
 import com.example.FileManagementAndStorage.Repository.FolderRepository;
 import com.example.FileManagementAndStorage.Repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -23,7 +24,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -36,6 +39,9 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FileShareRepository fileShareRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -51,7 +57,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public FileDTO uploadFile(MultipartFile multipartFile, Long folderId, String username) {
         try {
-            UserEntity owner = (UserEntity) userRepository.findByUsername(username)
+            UserEntity owner = userRepository.findByUsername(username)
                     .orElseThrow(() -> new ResourceNotFoundException("User", "Username", username));
 
             Folder folder = null;
@@ -153,6 +159,27 @@ public class FileServiceImpl implements FileService {
             log.error("Failed to delete file from S3 for key: {}", key, e);
             throw new RuntimeException("Error deleting file from S3", e);
         }
+    }
+
+    @Override
+    public List<FileDTO> getUserFiles(String username) {
+        UserEntity owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Username", username));
+        return fileRepository.findByOwner(owner).stream()
+                .map(file -> modelMapper.map(file, FileDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FileDTO> getSharedWithMe(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Username", username));
+        return fileShareRepository.findBySharedWith(user).stream()
+                .map(share -> {
+                    FileDTO dto = modelMapper.map(share.getFile(), FileDTO.class);
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.FileManagementAndStorage.Repository;
 
 import com.example.FileManagementAndStorage.Model.FileShare;
+import com.example.FileManagementAndStorage.Model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface FileShareRepository extends JpaRepository<FileShare, Long> {
 
     // returns the share record for fileId + sharedWith user id
     Optional<FileShare> findByFileIdAndSharedWithId(Long fileId, Long sharedWithId);
+
+    List<FileShare> findBySharedWith(UserEntity user);
 }

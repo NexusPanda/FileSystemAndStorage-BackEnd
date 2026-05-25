@@ -45,8 +45,15 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
+    public UserDTO getUserByUsername(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Username", username));
+        return modelMapper.map(user, UserDTO.class);
+    }
+
+    @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        UserEntity user = (UserEntity) userRepository.findByUsername(loginRequest.getName())
+        UserEntity user = userRepository.findByUsername(loginRequest.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User","Username",loginRequest.getName()));
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password!");

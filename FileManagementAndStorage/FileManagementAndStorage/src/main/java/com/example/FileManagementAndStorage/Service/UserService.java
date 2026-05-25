@@ -10,4 +10,6 @@ public interface UserService {
     UserDTO register(@Valid SignUpRequest signup);
 
     LoginResponse login(LoginRequest loginRequest);
+
+    UserDTO getUserByUsername(String username);
 }

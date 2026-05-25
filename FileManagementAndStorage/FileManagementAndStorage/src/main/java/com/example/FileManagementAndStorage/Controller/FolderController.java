@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/folders")
@@ -17,11 +18,15 @@ public class FolderController {
     @Autowired
     private FolderService folderService;
 
+    @GetMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<List<FolderDTO>> getUserFolders(Principal principal) {
+        return ResponseEntity.ok(folderService.getUserFolders(principal.getName()));
+    }
+
     @PostMapping("/create")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FolderDTO> createFolder(@RequestBody FolderDTO folderDTO, Principal principal) {
-        // principal.getName() ensures the username comes from JWT
-        System.out.println("Principle = " + principal.toString());
         FolderDTO createdFolder = folderService.createFolder(
                 folderDTO.getFolderName(),
                 folderDTO.getParentId(),

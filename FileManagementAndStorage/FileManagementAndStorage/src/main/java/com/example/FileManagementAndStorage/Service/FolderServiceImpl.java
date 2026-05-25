@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FolderServiceImpl implements FolderService {
@@ -28,7 +30,7 @@ public class FolderServiceImpl implements FolderService {
     public FolderDTO createFolder(String name, Long parentId, String username) {
 
 //        System.out.println("Name from Principle = " + username);
-        UserEntity owner = (UserEntity) userRepository.findByUsername(username)
+        UserEntity owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User","Username",username));
 
         Folder folder = new Folder();
@@ -67,5 +69,14 @@ public class FolderServiceImpl implements FolderService {
         Folder folder = folderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Folder","Folder_Id",id));
         folderRepository.delete(folder);
+    }
+
+    @Override
+    public List<FolderDTO> getUserFolders(String username) {
+        UserEntity owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Username", username));
+        return folderRepository.findByOwner(owner).stream()
+                .map(folder -> modelMapper.map(folder, FolderDTO.class))
+                .collect(Collectors.toList());
     }
 }

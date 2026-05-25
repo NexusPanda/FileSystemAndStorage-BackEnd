@@ -36,6 +36,7 @@ public class WebSecurityConfig {
         );
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(cors -> {});
         return http.build();
     }
 

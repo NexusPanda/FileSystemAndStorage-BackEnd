@@ -33,12 +33,12 @@ public class FileSharingController {
     }
 
     @GetMapping("/{id}/downloadpre-signedurl")
-    public ResponseEntity<String> downloadSharedFile(
+    public ResponseEntity<?> downloadSharedFile(
             @PathVariable Long id,
             @RequestParam Long userId) {
 
         String url = sharingService.getDownloadUrl(id, userId);
-        return ResponseEntity.ok(url);
+        return ResponseEntity.ok(java.util.Map.of("url", url));
     }
 
 }
