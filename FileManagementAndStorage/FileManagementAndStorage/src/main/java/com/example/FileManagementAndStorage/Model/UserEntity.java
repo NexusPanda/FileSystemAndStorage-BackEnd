@@ -29,10 +29,10 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(255)")
     private String email;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String password;
 
     @Enumerated(EnumType.STRING)
